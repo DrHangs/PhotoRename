@@ -16,7 +16,7 @@ namespace PicRenameGUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        static string Default_FileString = "IMG_{yyyy.MM.dd-HH:mm:ss}";
+        static string Default_FileString = "IMG_{yyyyMMdd-HHmmss}";
 
         string DirPath { get; set; }
         bool path_ok { get; set; }
@@ -46,6 +46,7 @@ namespace PicRenameGUI
 
             button_format_default.Click += FormatButton_Click;
 
+            // https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings
             text_format_in.ToolTip = @"Zieldateiname
 Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
 'yy' => Jahr, zweistellig
