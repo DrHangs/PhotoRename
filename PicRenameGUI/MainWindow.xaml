@@ -6,15 +6,34 @@
         xmlns:local="clr-namespace:PicRenameGUI"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <StackPanel>
-        <DockPanel>
-            <Label Content="Ordnerpfad" DockPanel.Dock="Left"/>
-            <TextBlock Text="✔❌" DockPanel.Dock="Right" x:Name="checks"/>
-            <Button Content="Auswählen" DockPanel.Dock="Right" x:Name="select"/>
-            <TextBox TextWrapping="Wrap" Text="TextBox" IsReadOnly="True" x:Name="dirpath"/>
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top" Margin="5">
+            <Label Content="Ordnerpfad" DockPanel.Dock="Left" Width="75"/>
+            <TextBlock Text="✔❌" DockPanel.Dock="Right" x:Name="text_checks" Width="25"/>
+            <Button Content="Auswählen" DockPanel.Dock="Right" x:Name="button_select" Width="75"/>
+            <TextBox TextWrapping="Wrap" Text="" IsReadOnly="True" x:Name="text_dirpath"/>
             
         </DockPanel>
-        <ProgressBar Height="30"/>
+        <DockPanel DockPanel.Dock="Top" Margin="5">
+            <Label Content="Dateiname" DockPanel.Dock="Left" Width="75"/>
+            <TextBlock Text="" DockPanel.Dock="Right" x:Name="format_checks"  Width="25"/>
+            <Button Content="Default" DockPanel.Dock="Right" x:Name="button_format_default" Width="75"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="25" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBox TextWrapping="Wrap" Text="TextBox" x:Name="text_format_in" Grid.Column="0"/>
+                <TextBox TextWrapping="Wrap" Text="TextBox" IsReadOnly="True" x:Name="text_format_out" Grid.Column="2"/>
+                <Label Content="➡" Grid.Column="1" />
+            </Grid>
 
-    </StackPanel>
+        </DockPanel>
+        <Button DockPanel.Dock="Top" Content="Start!" Margin="5" x:Name="button_run"/>
+        <ProgressBar DockPanel.Dock="Top" Height="30" Margin="5" x:Name="bar_progress"/>
+        <ScrollViewer Margin="5" x:Name="list_out">
+            <TextBlock x:Name="text_out" />
+        </ScrollViewer>
+    </DockPanel>
 </Window>
