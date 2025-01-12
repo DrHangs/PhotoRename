@@ -1,0 +1,20 @@
+﻿<Window x:Class="PicRenameGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PicRenameGUI"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <StackPanel>
+        <DockPanel>
+            <Label Content="Ordnerpfad" DockPanel.Dock="Left"/>
+            <TextBlock Text="✔❌" DockPanel.Dock="Right" x:Name="checks"/>
+            <Button Content="Auswählen" DockPanel.Dock="Right" x:Name="select"/>
+            <TextBox TextWrapping="Wrap" Text="TextBox" IsReadOnly="True" x:Name="dirpath"/>
+            
+        </DockPanel>
+        <ProgressBar Height="30"/>
+
+    </StackPanel>
+</Window>
