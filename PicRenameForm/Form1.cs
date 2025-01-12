@@ -1,9 +1,12 @@
-﻿namespace PicRenameForm
+﻿using System.Text.RegularExpressions;
+
+namespace PicRenameForm
 {
     public partial class Form1 : Form
     {
         string DirPath { get; set; }
         bool path_ok { get; set; }
+        static string Default_FileString = "{YYYY.MM.DD-HH:mm:ss}";
 
         public Form1()
         {
@@ -22,6 +25,8 @@
 
             progressBar.Style = ProgressBarStyle.Blocks;
 
+            formatBoxIn.TextChanged += FormatBoxIn_TextChanged;
+            formatBoxIn.Text = Default_FileString;
         }
 
         private void Runbutton_Click(object? sender, EventArgs e)
@@ -54,7 +59,7 @@
             progressBar.Step = 1;
             List<FileChangeData> files = new List<FileChangeData>();
             List<string> outlines = new List<string>();
-            foreach ( var file in many )
+            foreach (var file in many)
             {
                 var fcd = new FileChangeData()
                 {
@@ -104,9 +109,50 @@
 
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void FormatBoxIn_TextChanged(object? sender, EventArgs e)
         {
+            DateTime sampleDate = DateTime.Now;
+            // "2023:09:15 18:29:58";
+            string format = formatBoxIn.Text;
+            formatBoxOut.Text = ParseDateFormat(format, sampleDate);
+        }
 
+        private void FormatDefault_Click(object? sender, EventArgs e)
+        {
+            formatBoxIn.Text = Default_FileString;
+        }
+
+        private string ParseDateFormat(string format, DateTime date)
+        {
+            Regex regex = new Regex(@"\{(.*?)\}");
+            
+            string parsed = regex.Replace(format, match =>
+            {
+                string placeholder = match.Groups[1].Value;
+                //string placeholder = match.Value;
+
+                try
+                {
+                    return date.ToString(placeholder);
+                }
+                catch (FormatException)
+                {
+                    return placeholder;
+                }
+            });
+
+            return parsed;
+        }
+
+        private string SanitizeFileName(string input)
+        {
+            // Entferne ungültige Zeichen für Dateinamen
+            char[] invalidChars = System.IO.Path.GetInvalidFileNameChars();
+            foreach (char c in invalidChars)
+            {
+                input = input.Replace(c.ToString(), "_");
+            }
+            return input;
         }
     }
 }
