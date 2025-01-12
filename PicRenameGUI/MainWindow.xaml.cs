@@ -297,11 +297,18 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
         {
             using (FileStream fs = new FileStream(Original, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                BitmapSource img = BitmapFrame.Create(fs);
-                BitmapMetadata md = (BitmapMetadata)img.Metadata;
-                string date = md.DateTaken;
-                //Console.WriteLine($"Date: {date}");
-                return date;
+                try
+                {
+                    BitmapSource img = BitmapFrame.Create(fs);
+                    BitmapMetadata md = (BitmapMetadata)img.Metadata;
+                    string date = md.DateTaken;
+                    //Console.WriteLine($"Date: {date}");
+                    return date;
+                }
+                catch (NotSupportedException)
+                {
+                    return string.Empty;
+                }
             }
         }
     }
