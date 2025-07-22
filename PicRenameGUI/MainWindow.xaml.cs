@@ -22,6 +22,8 @@ namespace PicRenameGUI
         bool path_ok { get; set; }
         string FormatString { get; set; }
 
+        SettingData FileSettings { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -34,8 +36,8 @@ namespace PicRenameGUI
 
             //list_out.ReadOnly = true;
             //list_out.ScrollBars = ScrollBars.Both;
-            list_out.HorizontalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Visible;
-            list_out.VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Visible;
+            //list_out.HorizontalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Visible;
+            //list_out.VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Visible;
 
             button_run.Click += Runbutton_Click;
 
@@ -45,6 +47,8 @@ namespace PicRenameGUI
             text_format_in.Text = Default_FileString;
 
             button_format_default.Click += FormatButton_Click;
+
+            button_settings.Click += Button_settings_Click;
 
             // https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings
             text_format_in.ToolTip = @"Zieldateiname
@@ -57,7 +61,32 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
 'mm' => Minuten
 'ss' => Sekunden";
             text_format_out.ToolTip = @"Beispiel für einen Dateinamen";
+            button_settings.ToolTip = @"Einstellungen";
+            data_list_out.ToolTip = @"Liste aller Dateien und deren neuer Name";
 
+            FileSettings = new SettingData();
+            FileSettings.Dateiformate.Add(new SettingData.Dateiformat { Format = ".png" });
+            FileSettings.Dateiformate.Add(new SettingData.Dateiformat { Format = ".jpg" });
+            FileSettings.Dateiformate.Add(new SettingData.Dateiformat { Format = ".jpeg" });
+            FileSettings.ReadDataFromDisk();
+        }
+
+        private void Button_settings_Click(object sender, RoutedEventArgs e)
+        {
+            SettingData tmpdata = (SettingData)FileSettings.Clone();
+            var settwin = new Settinger(tmpdata);
+
+            settwin.ShowDialog();
+            if (settwin.Data.Submit)
+            {
+                if (FileSettings != settwin.Data)
+                {
+                    FileSettings = settwin.Data;
+                    FileSettings.SaveDataToDisk();
+                }
+            }
+
+            //System.Windows.MessageBox.Show($"Current Data:\nHardRun:{FileSettings.HardRun}");
         }
 
         private void FormatButton_Click(object sender, RoutedEventArgs e)
@@ -79,43 +108,11 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
 
             new Thread(Rename_Mainloop).Start();
             return;
-
-            DirectoryInfo dirinfo;
-            try
-            {
-                dirinfo = new DirectoryInfo(DirPath);
-            }
-            catch (Exception exept)
-            {
-                text_out.Text = "Fehler beim Lesen des Ordners:\n" + exept.Message;
-                return;
-            }
-
-            var many = dirinfo.GetFiles();
-
-            bar_progress.Minimum = 0;
-            bar_progress.Maximum = many.Length;
-            bar_progress.Value = 0;
-            List<FileChangeData> files = new List<FileChangeData>();
-            List<string> outlines = new List<string>();
-            foreach (var file in many)
-            {
-                var fcd = new FileChangeData()
-                {
-                    Original = file.FullName
-                };
-                fcd.Date = fcd.GetDate();
-                files.Add(fcd);
-                outlines.Add($"{Path.GetFileName(fcd.Original)} -> {fcd.Date}");
-                bar_progress.Value += 1;
-            }
-
-            text_out.Text = string.Join("\n", outlines.ToArray());
         }
 
         private void Dirpathbox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (System.IO.Directory.Exists(text_dirpath.Text))
+            if (Directory.Exists(text_dirpath.Text))
             {
                 text_checks.Text = "✔";
                 DirPath = text_dirpath.Text;
@@ -133,6 +130,7 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
         private void Select_Click(object sender, RoutedEventArgs e)
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.SelectedPath = text_dirpath.Text;
             var succ = dialog.ShowDialog();
             if (succ == System.Windows.Forms.DialogResult.OK)
             {
@@ -185,7 +183,7 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
         private string SanitizeFileName(string input)
         {
             // Entferne ungültige Zeichen für Dateinamen
-            char[] invalidChars = System.IO.Path.GetInvalidFileNameChars();
+            char[] invalidChars = Path.GetInvalidFileNameChars();
             foreach (char c in invalidChars)
             {
                 input = input.Replace(c.ToString(), "_");
@@ -204,11 +202,19 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
             }
             catch (Exception exept)
             {
-                text_out.Text = "Fehler beim Lesen des Ordners:\n" + exept.Message;
+                System.Windows.MessageBox.Show(
+                    "Fehler beim Lesen des Ordners:\n" + exept.Message,
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             var many = dirinfo.GetFiles();
+            
+            var extensions = FileSettings.Dateiformate.ConvertAll(x => x.Format.ToLower());
+            many = many.ToList().FindAll(x =>
+            {
+                return extensions.Contains(x.Extension.ToLower());
+            }).ToArray();
 
             Dispatcher.Invoke(() =>
             {
@@ -223,13 +229,26 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
             {
                 var fcd = new FileChangeData()
                 {
-                    Original = file.FullName
+                    Original = file.FullName,
+                    OrigFilename = file.Name,
                 };
-                fcd.Date = fcd.GetDate();
-                DateTime tmp_date;
-                if(DateTime.TryParse(fcd.Date, out tmp_date))
+                //fcd.Date = fcd.GetDate();
+                fcd.ExtractDate();
+
+                if (string.IsNullOrEmpty(fcd.Date))
                 {
-                    fcd.New = ParseDateFormat(FormatString, tmp_date);
+                    // No Date could be extracted
+                    fcd.New = Path.GetFileNameWithoutExtension(fcd.Original);
+                    fcd.State = "❔";
+                }
+                else
+                {
+                    DateTime tmp_date;
+                    if (DateTime.TryParse(fcd.Date, out tmp_date))
+                    {
+                        fcd.New = ParseDateFormat(FormatString, tmp_date);
+                        fcd.State = "☑";
+                    }
                 }
 
                 files.Add(fcd);
@@ -241,48 +260,56 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
             }
 
             var same_names = files.GroupBy(i => i.New);
-            foreach(var grp in  same_names)
+            foreach (var grp in same_names)
             {
-                if(grp.Count() == 1)
+                if (string.IsNullOrEmpty(grp.Key))
                 {
-                    foreach(var nomnom in files.FindAll(i => i.New == grp.Key))
+                    continue;
+                }
+                if (grp.Count() == 1)
+                {
+                    //foreach(var nomnom in files.FindAll(i => i.New == grp.Key))
+                    foreach (var filecd in grp)
                     {
-                        nomnom.Duplicate = -1;
+                        filecd.Duplicate = -1;
                     }
                 }
                 else
                 {
                     int count_up = 0;
                     string padding_string = new string('0', grp.Count().ToString().Length);
-                    foreach(var nomnom in files.FindAll(i=> i.New == grp.Key))
+                    //foreach(var nomnom in files.FindAll(i=> i.New == grp.Key))
+                    foreach (var nomnom in grp)
                     {
                         nomnom.Duplicate = count_up;
                         nomnom.New += "_" + (count_up + 1).ToString(padding_string);
+                        nomnom.State = "🔢";
                         count_up++;
                     }
                 }
             }
 
-            foreach(var fcd in files)
+            foreach (var fcd in files)
             {
                 if (!string.IsNullOrEmpty(fcd.New))
                 {
+                    // Got new Name (likely with date). Add Original Extension
+                    // CAUTION: Also for not changed files, extension was just yanked
                     fcd.New += Path.GetExtension(fcd.Original);
                 }
 
-                if (string.IsNullOrEmpty(fcd.New))
+                // Now do the actual rename
+                if (FileSettings.HardRun)
                 {
-                    outlines.Add($"{Path.GetFileName(fcd.Original)} -> ");
-                }
-                else
-                {
-                    outlines.Add($"{Path.GetFileName(fcd.Original)} -> {fcd.New}");
+                    string newfilename = Path.Combine(Path.GetDirectoryName(fcd.Original), fcd.New);
+                    File.Move(fcd.Original, newfilename);
                 }
             }
 
             Dispatcher.Invoke(() =>
             {
-                text_out.Text = string.Join("\n", outlines.ToArray());
+                data_list_out.ItemsSource = files;
+                //data_list_out.FontFamily = Fonts.SystemFontFamilies.ToList().Find(i => i.FamilyNames.Values.Contains("Courier New"));
             });
         }
     }
@@ -290,9 +317,11 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
     class FileChangeData
     {
         public string Original { get; set; }
-        public string New;
+        public string OrigFilename { get; set; }
+        public string New { get; set; }
         public string Date;
         public int Duplicate;
+        public string State { get; set; }
 
         public string GetDate()
         {
@@ -311,6 +340,11 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
                     return string.Empty;
                 }
             }
+        }
+
+        public void ExtractDate()
+        {
+            Date = GetDate();
         }
     }
 }

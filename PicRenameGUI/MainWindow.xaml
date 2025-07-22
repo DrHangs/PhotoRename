@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PicRenameGUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        MinHeight="300" MinWidth="400"
+        Title="Picture Rename" Height="450" Width="800">
     <DockPanel>
         <DockPanel DockPanel.Dock="Top" Margin="5">
             <Label Content="Ordnerpfad" DockPanel.Dock="Left" Width="75"/>
@@ -30,10 +31,26 @@
             </Grid>
 
         </DockPanel>
-        <Button DockPanel.Dock="Top" Content="Start!" Margin="5" x:Name="button_run"/>
+        <DockPanel DockPanel.Dock="Top" Margin="5">
+            <TextBlock Text="" DockPanel.Dock="Right" Width="25"/>
+            <Button DockPanel.Dock="Right" Content="⚙" x:Name="button_settings" Width="75" />
+            <Button DockPanel.Dock="Top" Content="Start!" Margin="5,0,5,0" x:Name="button_run"/>
+        </DockPanel>
         <ProgressBar DockPanel.Dock="Top" Height="30" Margin="5" x:Name="bar_progress"/>
-        <ScrollViewer Margin="5" x:Name="list_out">
-            <TextBlock x:Name="text_out" />
-        </ScrollViewer>
+        <!--<ScrollViewer Margin="5" x:Name="list_out" 
+                      HorizontalScrollBarVisibility="Visible"
+                      VerticalScrollBarVisibility="Visible">-->
+            <!--<TextBlock x:Name="text_out" />-->
+            <DataGrid 
+                CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+                AlternatingRowBackground="PaleGreen" AutoGenerateColumns="False"
+                MinColumnWidth="50" FontFamily="Arial" x:Name="data_list_out">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Status" Binding="{Binding State}" Width="Auto"/>
+                        <DataGridTextColumn Header="Originaler Name" Binding="{Binding OrigFilename}" Width="*"/>
+                        <DataGridTextColumn Header="Neuer Name" Binding="{Binding New}" Width="*"/>
+                    </DataGrid.Columns>
+            </DataGrid>
+        <!--</ScrollViewer>-->
     </DockPanel>
 </Window>

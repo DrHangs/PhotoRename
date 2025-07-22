@@ -1,0 +1,39 @@
+﻿<Window x:Class="PicRenameGUI.Settinger"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PicRenameGUI"
+        mc:Ignorable="d" ResizeMode="CanMinimize"
+        Title="Einstellungen" Height="250" Width="200">
+    <DockPanel>
+        <Grid DockPanel.Dock="Bottom">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="submit" Grid.Column="0"
+                    Content="Submit"
+                    Margin="5"/>
+            <Button x:Name="cancel" Grid.Column="1"
+                    Content="Cancel" Margin="5"/>
+        </Grid>
+
+        <CheckBox DockPanel.Dock="Top" Margin="5"
+                  Content="Dateien Umbenennen"
+                  x:Name="Hardrun" IsChecked="{Binding HardRun, Mode=TwoWay}"/>
+
+        <DockPanel DockPanel.Dock="Top">
+            <!--<Label DockPanel.Dock="Top">Dateiformate</Label>-->
+            <!--<DataGrid x:Name="dataformats"></DataGrid>-->
+            <!--<ListView x:Name="formatlist"></ListView>-->
+            <Border BorderBrush="Black" BorderThickness="2" Margin="5">
+                <DataGrid x:Name="dataformats" AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Dateitypen" Binding="{Binding Format}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </DockPanel>
+    </DockPanel>
+</Window>
