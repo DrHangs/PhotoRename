@@ -12,7 +12,7 @@
             <Label Content="Ordnerpfad" DockPanel.Dock="Left" Width="75"/>
             <TextBlock Text="✔❌" DockPanel.Dock="Right" x:Name="text_checks" Width="25"/>
             <Button Content="Auswählen" DockPanel.Dock="Right" x:Name="button_select" Width="75"/>
-            <TextBox TextWrapping="Wrap" Text="" IsReadOnly="True" x:Name="text_dirpath"/>
+            <TextBox TextWrapping="Wrap" Text="" IsReadOnly="False" x:Name="text_dirpath"/>
             
         </DockPanel>
         <DockPanel DockPanel.Dock="Top" Margin="5">

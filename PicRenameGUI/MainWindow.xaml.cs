@@ -34,6 +34,7 @@ namespace PicRenameGUI
 
             text_checks.Text = "🔄";
             text_dirpath.TextChanged += Dirpathbox_TextChanged;
+            text_dirpath.Text = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             button_run.IsEnabled = false;
 
             //list_out.ReadOnly = true;
