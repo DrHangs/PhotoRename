@@ -1,5 +1,5 @@
-﻿using MetadataExtractor.Formats.Exif;
-using MetadataExtractor;
+﻿using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +10,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
-using System.Timers;
 
 namespace PicRenameGUI
 {
@@ -27,9 +26,15 @@ namespace PicRenameGUI
 
         SettingData FileSettings { get; set; }
 
+        System.Windows.Shell.TaskbarItemInfo taskbar { get; }
+
+        Thread renameThread { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
+
+            this.Closing += MainWindow_Closing;
 
             button_select.Click += Select_Click;
 
@@ -73,6 +78,21 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
             FileSettings.Dateiformate.Add(new SettingData.Dateiformat { Format = ".jpg" });
             FileSettings.Dateiformate.Add(new SettingData.Dateiformat { Format = ".jpeg" });
             FileSettings.ReadDataFromDisk();
+
+            taskbar = new System.Windows.Shell.TaskbarItemInfo();
+            taskbar.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
+            this.TaskbarItemInfo = taskbar;
+        }
+
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if(renameThread != null)
+            {
+                if (renameThread.IsAlive)
+                {
+                    renameThread.Abort();
+                }
+            }
         }
 
         private void Button_settings_Click(object sender, RoutedEventArgs e)
@@ -112,7 +132,8 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
 
             button_run.IsEnabled = false;
 
-            new Thread(Rename_Mainloop).Start();
+            renameThread = new Thread(Rename_Mainloop);
+            renameThread.Start();
             return;
         }
 
@@ -227,6 +248,8 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
                 bar_progress.Minimum = 0;
                 bar_progress.Maximum = many.Length;
                 bar_progress.Value = 0;
+                taskbar.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
+                taskbar.ProgressValue = 0.0;
             });
 
             List<FileChangeData> files = new List<FileChangeData>();
@@ -273,6 +296,7 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
                 Dispatcher.Invoke(() =>
                 {
                     bar_progress.Value += 1;
+                    taskbar.ProgressValue = (double)(bar_progress.Value / bar_progress.Maximum);
                 });
             }
 
@@ -357,6 +381,8 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
             {
                 data_list_out.ItemsSource = files;
                 //data_list_out.FontFamily = Fonts.SystemFontFamilies.ToList().Find(i => i.FamilyNames.Values.Contains("Courier New"));
+                //SystemSounds.Beep.Play();
+                taskbar.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
             });
 
             // Updating the button back to enabled after one second
