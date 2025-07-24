@@ -317,7 +317,7 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
             // Else: Throw big time error. Or at least message
             var origfilenames = files.Where(x => x.OrigFilename != x.New).ToList().ConvertAll(x => x.OrigFilename);
             var newfilenames = files.Where(x => x.OrigFilename != x.New).ToList().ConvertAll(x => x.New);
-            if(origfilenames.Union(newfilenames).Count() != 0)
+            if(origfilenames.Intersect(newfilenames).Count() != 0)
             {
                 System.Windows.MessageBox.Show(
                     "There are Files with names, that could be overwritten on renaming!\n" +
@@ -326,8 +326,6 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning
                 );
-                //origfilenames.Union(newfilenames)
-                
             }
 
             foreach(var fcd in files)
