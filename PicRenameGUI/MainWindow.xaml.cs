@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
+using System.Timers;
 
 namespace PicRenameGUI
 {
@@ -108,6 +109,8 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
         private void Runbutton_Click(object sender, RoutedEventArgs e)
         {
             if (!path_ok) { return; }
+
+            button_run.IsEnabled = false;
 
             new Thread(Rename_Mainloop).Start();
             return;
@@ -252,7 +255,7 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
                         fcd.New = ParseDateFormat(FormatString, tmp_date);
                         fcd.State = "☑";
                     }
-                    else if(DateTime.TryParseExact(fcd.Date, "yyyy:MM:dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out tmp_date))
+                    else if (DateTime.TryParseExact(fcd.Date, "yyyy:MM:dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out tmp_date))
                     {
                         fcd.New = ParseDateFormat(FormatString, tmp_date);
                         fcd.State = "☑";
@@ -317,7 +320,7 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
             // Else: Throw big time error. Or at least message
             var origfilenames = files.Where(x => x.OrigFilename != x.New).ToList().ConvertAll(x => x.OrigFilename);
             var newfilenames = files.Where(x => x.OrigFilename != x.New).ToList().ConvertAll(x => x.New);
-            if(origfilenames.Intersect(newfilenames).Count() != 0)
+            if (origfilenames.Intersect(newfilenames).Count() != 0)
             {
                 System.Windows.MessageBox.Show(
                     "There are Files with names, that could be overwritten on renaming!\n" +
@@ -328,12 +331,12 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
                 );
             }
 
-            foreach(var fcd in files)
-            { 
+            foreach (var fcd in files)
+            {
                 // Now do the actual rename
                 if (FileSettings.HardRun)
                 {
-                    if(fcd.OrigFilename == fcd.New)
+                    if (fcd.OrigFilename == fcd.New)
                     {
                         // Name did not change --> ignore
                         continue;
@@ -355,6 +358,21 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
                 data_list_out.ItemsSource = files;
                 //data_list_out.FontFamily = Fonts.SystemFontFamilies.ToList().Find(i => i.FamilyNames.Values.Contains("Courier New"));
             });
+
+            // Updating the button back to enabled after one second
+            System.Timers.Timer timer = new System.Timers.Timer()
+            {
+                AutoReset = false,
+                Interval = 1000,
+            };
+            timer.Elapsed += (s, e) =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    button_run.IsEnabled = true;
+                });
+            };
+            timer.Start();
         }
     }
 
