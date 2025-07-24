@@ -311,12 +311,44 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
                     // CAUTION: Also for not changed files, extension was just yanked
                     fcd.New += Path.GetExtension(fcd.Original);
                 }
+            }
 
+            // Check if the target filenames are available
+            // Else: Throw big time error. Or at least message
+            var origfilenames = files.Where(x => x.OrigFilename != x.New).ToList().ConvertAll(x => x.OrigFilename);
+            var newfilenames = files.Where(x => x.OrigFilename != x.New).ToList().ConvertAll(x => x.New);
+            if(origfilenames.Union(newfilenames).Count() != 0)
+            {
+                System.Windows.MessageBox.Show(
+                    "There are Files with names, that could be overwritten on renaming!\n" +
+                    "These files will not be touched and keep their original name",
+                    "Duplicate Filenames",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning
+                );
+                //origfilenames.Union(newfilenames)
+                
+            }
+
+            foreach(var fcd in files)
+            { 
                 // Now do the actual rename
                 if (FileSettings.HardRun)
                 {
+                    if(fcd.OrigFilename == fcd.New)
+                    {
+                        // Name did not change --> ignore
+                        continue;
+                    }
                     string newfilename = Path.Combine(Path.GetDirectoryName(fcd.Original), fcd.New);
-                    File.Move(fcd.Original, newfilename);
+                    if (!File.Exists(newfilename))
+                    {
+                        File.Move(fcd.Original, newfilename);
+                    }
+                    else
+                    {
+                        System.Windows.MessageBox.Show($"Could not rename {fcd.OrigFilename} because {fcd.New} already exists");
+                    }
                 }
             }
 
