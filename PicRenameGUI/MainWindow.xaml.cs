@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MetadataExtractor.Formats.Exif;
+using MetadataExtractor;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -112,7 +114,7 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
 
         private void Dirpathbox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (Directory.Exists(text_dirpath.Text))
+            if (System.IO.Directory.Exists(text_dirpath.Text))
             {
                 text_checks.Text = "✔";
                 DirPath = text_dirpath.Text;
@@ -209,7 +211,7 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
             }
 
             var many = dirinfo.GetFiles();
-            
+
             var extensions = FileSettings.Dateiformate.ConvertAll(x => x.Format.ToLower());
             many = many.ToList().FindAll(x =>
             {
@@ -248,6 +250,17 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
                     {
                         fcd.New = ParseDateFormat(FormatString, tmp_date);
                         fcd.State = "☑";
+                    }
+                    else if(DateTime.TryParseExact(fcd.Date, "yyyy:MM:dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out tmp_date))
+                    {
+                        fcd.New = ParseDateFormat(FormatString, tmp_date);
+                        fcd.State = "☑";
+                    }
+                    else
+                    {
+                        // No Date could be extracted
+                        fcd.New = Path.GetFileNameWithoutExtension(fcd.Original);
+                        fcd.State = "❔";
                     }
                 }
 
@@ -325,6 +338,7 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
 
         public string GetDate()
         {
+            // Using .NET internal classes, Fallback in case of Nuclear desaster
             using (FileStream fs = new FileStream(Original, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 try
@@ -339,12 +353,37 @@ Datum/Zeit kann in '{}' angegeben werden. Formatierung möglich mit:
                 {
                     return string.Empty;
                 }
+                catch (FileFormatException)
+                {
+                    return string.Empty;
+                }
+            }
+        }
+
+        public string GetDateExt()
+        {
+            // Using external Lib MetadataExtractor
+            using (FileStream fs = new FileStream(Original, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                var meta = ImageMetadataReader.ReadMetadata(fs);
+                var subIfdDirectory = meta.OfType<ExifSubIfdDirectory>().FirstOrDefault();
+                var dateTime = subIfdDirectory?.GetDescription(ExifDirectoryBase.TagDateTime);
+                if (dateTime != string.Empty)
+                {
+                    dateTime = subIfdDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
+                    //ExifDirectoryBase.//TagDateTimeOriginal
+                }
+                return dateTime;
             }
         }
 
         public void ExtractDate()
         {
-            Date = GetDate();
+            Date = GetDateExt();
+            if (string.IsNullOrEmpty(Date))
+            {
+                Date = GetDate();
+            }
         }
     }
 }
