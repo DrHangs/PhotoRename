@@ -10,11 +10,13 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <StartupObject>PhotoRename.App</StartupObject>
-    <AssemblyOriginatorKeyFile>E:\Repos\DH_Cert.pfx</AssemblyOriginatorKeyFile>
     <NeutralLanguage>de</NeutralLanguage>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>MIT</Copyright>
     <PackageProjectUrl>https://github.com/DrHangs/PhotoRename</PackageProjectUrl>
+    <Authors>DrHangs</Authors>
+    <Version>1.1.0</Version>
+    <VersionSuffix>0</VersionSuffix>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
