@@ -1,4 +1,4 @@
-# PhotoRename
+#  ![PhotoRename Icon](icon.ico) PhotoRename
 
 PhotoRename ist ein minimalistisches Tool zum Umbenennen von Photos anhand ihres Aufnahmedatums.
 Besonders hilfreich bei Kameras und Smartphones, die ihre Bilder nicht mit einem sprechenden Namen abspeichern.
