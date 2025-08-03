@@ -11,7 +11,7 @@ Besonders hilfreich bei Kameras und Smartphones, die ihre Bilder nicht mit einem
 
 ### Installation
 
-1. Ein fertiger Installer ist hier unter Releases zu finden. Einfach das .msi downloaden und ausführen.
+1. Ein fertiger Installer ist hier unter Releases zu finden. Einfach PhotoRenameInstaller.exe downloaden und ausführen.
 2. Evtl. Meldungen von Windows ignorieren, dass es mich nicht kennt. Ich nehme es Windows auch nicht böse. Einmal auf "Weitere Informationen" gehen und dann "Trotzdem Ausführen"
 3. Nach der Installation im Startmenü oder Desktop-Verknüpfung starten
 
