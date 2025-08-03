@@ -1,0 +1,59 @@
+﻿<Window x:Class="PhotoRename.PhotoRenameWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PhotoRename"
+        mc:Ignorable="d"
+        MinHeight="300" MinWidth="400"
+        Title="PhotoRename" Height="450" Width="800">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top" Margin="5">
+        <Label Content="Ordnerpfad" DockPanel.Dock="Left" Width="75" VerticalAlignment="Center"/>
+        <TextBlock Text="✔❌" DockPanel.Dock="Right" x:Name="text_checks" Width="25"
+                   TextAlignment="Center" VerticalAlignment="Center"/>
+        <Button Content="Auswählen" DockPanel.Dock="Right" x:Name="button_select" Width="75"
+                VerticalContentAlignment="Center"/>
+        <TextBox TextWrapping="Wrap" Text="" IsReadOnly="False" x:Name="text_dirpath"
+                 VerticalContentAlignment="Center"/>
+
+    </DockPanel>
+    <DockPanel DockPanel.Dock="Top" Margin="5">
+        <Label Content="Dateiname" DockPanel.Dock="Left" Width="75"/>
+        <TextBlock Text="" DockPanel.Dock="Right" x:Name="format_checks"  Width="25"/>
+        <Button Content="Default" DockPanel.Dock="Right" x:Name="button_format_default" Width="75"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="25" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBox TextWrapping="Wrap" Text="TextBox" x:Name="text_format_in" 
+                     Grid.Column="0" VerticalContentAlignment="Center"/>
+            <TextBox TextWrapping="Wrap" Text="TextBox" IsReadOnly="True" 
+                     x:Name="text_format_out" Grid.Column="2"
+                     VerticalContentAlignment="Center"/>
+            <Label Content="➡" Grid.Column="1" VerticalAlignment="Center"/>
+        </Grid>
+
+    </DockPanel>
+    <DockPanel DockPanel.Dock="Top" Margin="5">
+        <TextBlock Text="" DockPanel.Dock="Right" Width="25"/>
+        <Button DockPanel.Dock="Right" Content="⚙" x:Name="button_settings" Width="75" 
+                VerticalContentAlignment="Center"/>
+        <Button DockPanel.Dock="Top" Content="Start!" Margin="5,0,5,0" x:Name="button_run"
+                VerticalContentAlignment="Center"/>
+    </DockPanel>
+        <ProgressBar DockPanel.Dock="Top" Height="30" Margin="5" x:Name="bar_progress"/>
+        <DataGrid 
+            CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+            AlternatingRowBackground="PaleGreen" AutoGenerateColumns="False"
+            MinColumnWidth="50" FontFamily="Arial" x:Name="data_list_out">
+        <DataGrid.Columns>
+            <DataGridTextColumn Header="Status" Binding="{Binding State}" Width="Auto"/>
+            <DataGridTextColumn Header="Originaler Name" Binding="{Binding OrigFilename}" Width="*"/>
+            <DataGridTextColumn Header="Neuer Name" Binding="{Binding New}" Width="*"/>
+        </DataGrid.Columns>
+    </DataGrid>
+    </DockPanel>
+</Window>
