@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PhotoRename"
         mc:Ignorable="d" ResizeMode="CanMinimize"
-        Title="Einstellungen" Height="250" Width="200">
-    <DockPanel>
+        Title="Einstellungen" Height="300" Width="250">
+    <DockPanel Margin="5,2,5,2">
         <Grid DockPanel.Dock="Bottom">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -19,20 +19,40 @@
                     Content="Abbrechen" Margin="5"/>
         </Grid>
 
-        <CheckBox DockPanel.Dock="Top" Margin="5"
+        <Border BorderBrush="Black" BorderThickness="0,1,0,1"  DockPanel.Dock="Top" Margin="2">
+            <DockPanel >
+                <TextBlock DockPanel.Dock="Top" Margin="2">Format für neue Dateinamen</TextBlock>
+                <TextBox DockPanel.Dock="Top" Margin="10,2,2,2"></TextBox>
+                <TextBlock DockPanel.Dock="Left" Margin="10,2,2,2">↪</TextBlock>
+                <TextBox DockPanel.Dock="Top" Margin="2" IsReadOnly="True" ></TextBox>
+            </DockPanel>
+        </Border>
+
+        <CheckBox DockPanel.Dock="Top" Margin="10,2,2,2"
                   Content="Dateien Umbenennen"
                   x:Name="Hardrun" IsChecked="{Binding HardRunBinding, Mode=TwoWay}"/>
-
+        
+        <!--<CheckBox DockPanel.Dock="Top" Margin="2"
+                  Content="Unterordner mit einbeziehen"
+                  x:Name="Recursive" IsChecked="{Binding HardRunBinding, Mode=TwoWay}"/>
+        -->
+        
         <DockPanel DockPanel.Dock="Top">
             <!--<Label DockPanel.Dock="Top">Dateiformate</Label>-->
             <!--<DataGrid x:Name="dataformats"></DataGrid>-->
             <!--<ListView x:Name="formatlist"></ListView>-->
-            <Border BorderBrush="Black" BorderThickness="2" Margin="5">
-                <DataGrid x:Name="dataformats" ItemsSource="{Binding FormateBinding}" AutoGenerateColumns="False">
+            <Border BorderBrush="Black" BorderThickness="0,1,0,0" Margin="2">
+                <DockPanel>
+                    
+                <TextBlock DockPanel.Dock="Top">Dateiformate</TextBlock>
+                <DataGrid x:Name="dataformats" DockPanel.Dock="Top" Margin="10,2,2,2"
+                          AutoGenerateColumns="False" HeadersVisibility="None"
+                          ItemsSource="{Binding FormateBinding}" >
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Dateitypen" Binding="{Binding Format}" Width="*"/>
                     </DataGrid.Columns>
                 </DataGrid>
+                </DockPanel>
             </Border>
         </DockPanel>
     </DockPanel>
