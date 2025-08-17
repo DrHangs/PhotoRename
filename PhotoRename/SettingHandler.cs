@@ -120,7 +120,7 @@ namespace PhotoRename
 
             public static readonly Settings Default = new()
             {
-                HardRun = false,
+                HardRun = true,
                 Formate = [".png", ".jpg", ".jpeg"]
             };
 
